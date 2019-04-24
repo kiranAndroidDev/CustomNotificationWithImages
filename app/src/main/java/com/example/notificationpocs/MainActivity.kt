@@ -22,38 +22,52 @@ class MainActivity : AppCompatActivity() {
     private var notificationCompatBuilder: NotificationCompat.Builder? = null
     private var smallLayout: RemoteViews? = null
     private var largeLayout: RemoteViews? = null
+    private var largeLayoutCustomAction: RemoteViews? = null
     private var notificationManager: NotificationManager? = null
+
+    private var contentIntent: PendingIntent? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        button.setOnClickListener { generateNotification() }
+        val notificationIntent = Intent(applicationContext, MainActivity::class.java)
+         contentIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, 0)
+        button.setOnClickListener { generateNotification(true) }
+        button2.setOnClickListener { generateNotification(false) }
 
     }
 
-    private fun generateNotification() {
+    private fun generateNotification(isDefault: Boolean) {
         inflateLayout()
-        //Notification Channel
         notificationCompatBuilder = NotificationCompat.Builder(
             applicationContext, NOTIFICATION_CHANNEL_ID
         )
-        val notificationIntent = Intent(applicationContext, MainActivity::class.java)
-        val contentIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, 0)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
             createNotificationChannel()
+        if (isDefault)
+            notificationWithDefaultAction()
+        else
+            notificationWithCustomAction()
 
-        notificationWithDefaultAction()
         val notification = notificationCompatBuilder!!.build()
+
         Picasso.get().load("https://goo.gl/static/Firebase.png").into(largeLayout!!, R.id.img3, 1, notification)
         Picasso.get().load("https://goo.gl/static/Firebase.png").into(largeLayout!!, R.id.img2, 1, notification)
         Picasso.get().load("https://goo.gl/static/Firebase.png").into(largeLayout!!, R.id.img1, 1, notification)
+
+        Picasso.get().load("https://goo.gl/static/Firebase.png").into(largeLayoutCustomAction!!, R.id.img3, 1, notification)
+        Picasso.get().load("https://goo.gl/static/Firebase.png").into(largeLayoutCustomAction!!, R.id.img2, 1, notification)
+        Picasso.get().load("https://goo.gl/static/Firebase.png").into(largeLayoutCustomAction!!, R.id.img1, 1, notification)
+
+        largeLayoutCustomAction!!.setOnClickPendingIntent(R.id.action_btn,contentIntent)
         notificationManager!!.notify(1, notification)
     }
 
     private fun inflateLayout() {
         smallLayout = RemoteViews(packageName, R.layout.notification_layout)
         largeLayout = RemoteViews(packageName, R.layout.notification_layout_large)
+        largeLayoutCustomAction = RemoteViews(packageName, R.layout.notification_layout_large_action)
     }
 
     companion object {
@@ -61,23 +75,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun notificationWithCustomAction() {
-        val notificationIntent = Intent(applicationContext, MainActivity::class.java)
-        val contentIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, 0)
-        notificationCompatBuilder!!
+       notificationCompatBuilder!!
             .setSmallIcon(R.drawable.sample)
-            .setCustomBigContentView(largeLayout)
+            .setCustomBigContentView(largeLayoutCustomAction)
             .setCustomContentView(smallLayout)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            .addAction(R.drawable.notification_icon_background, "View", contentIntent)
             .setWhen(System.currentTimeMillis())
     }
 
     fun notificationWithDefaultAction() {
-        val notificationIntent = Intent(applicationContext, MainActivity::class.java)
-        val contentIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, 0)
         notificationCompatBuilder!!
             .setSmallIcon(R.drawable.sample)
             .setCustomBigContentView(largeLayout)
