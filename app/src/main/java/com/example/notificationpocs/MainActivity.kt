@@ -12,6 +12,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.app.NotificationChannel
 import android.graphics.Color
+import android.net.Uri
 
 import android.os.Build
 import android.support.annotation.IdRes
@@ -125,7 +126,9 @@ class MainActivity : AppCompatActivity() {
         notification: Notification
     ) {
         try {
-            Picasso.get().load(url).into(view, id, notificationId, notification)
+            Picasso.get().
+                load(url)
+                .into(view, id, notificationId, notification)
         } catch (e: Exception) {
             e.printStackTrace()
         }
