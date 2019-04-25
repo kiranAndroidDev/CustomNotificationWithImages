@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationIntent = Intent(applicationContext, MainActivity::class.java)
-         contentIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, 0)
+        contentIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, 0)
         button.setOnClickListener { generateNotification(true) }
         button2.setOnClickListener { generateNotification(false) }
 
@@ -62,11 +62,11 @@ class MainActivity : AppCompatActivity() {
         loadImages(largeLayout!!,R.id.img3,"https://goo.gl/static/Firebase.png",1,notification)
 
         //load image for custom action notification
-        loadImages(largeLayoutCustomAction!!,R.id.img1,"https://goo.gl/static/Firebase.png",1,notification)
-        loadImages(largeLayoutCustomAction!!,R.id.img2,"https://goo.gl/static/Firebase.png",1,notification)
-        loadImages(largeLayoutCustomAction!!,R.id.img3,"https://goo.gl/static/Firebase.png",1,notification)
+        loadImages(largeLayoutCustomAction!!, R.id.img1, "https://goo.gl/static/Firebase.png", 1, notification)
+        loadImages(largeLayoutCustomAction!!, R.id.img2, "https://goo.gl/static/Firebase.png", 1, notification)
+        loadImages(largeLayoutCustomAction!!, R.id.img3, "https://goo.gl/static/Firebase.png", 1, notification)
 
-        largeLayoutCustomAction!!.setOnClickPendingIntent(R.id.action_btn,contentIntent)
+        largeLayoutCustomAction!!.setOnClickPendingIntent(R.id.action_btn, contentIntent)
         notificationManager!!.notify(1, notification)
     }
 
@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun notificationWithCustomAction() {
-       notificationCompatBuilder!!
+        notificationCompatBuilder!!
             .setSmallIcon(R.mipmap.ic_launcher)
             .setCustomBigContentView(largeLayoutCustomAction)
             .setCustomContentView(smallLayout)
@@ -99,11 +99,9 @@ class MainActivity : AppCompatActivity() {
             .setCustomContentView(smallLayout)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setContentIntent(contentIntent)
-            .addAction(R.drawable.notification_icon_background, "View", contentIntent)
             .setAutoCancel(true)
+            .addAction(R.mipmap.ic_launcher_round, "View", contentIntent)
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            .setWhen(System.currentTimeMillis())
 
     }
 
@@ -120,10 +118,15 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun loadImages(view:RemoteViews,@IdRes id:Int,url:String,notificationId:Int,notification: Notification){
+    private fun loadImages(
+        view: RemoteViews, @IdRes id: Int,
+        url: String,
+        notificationId: Int,
+        notification: Notification
+    ) {
         try {
             Picasso.get().load(url).into(view, id, notificationId, notification)
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
 
