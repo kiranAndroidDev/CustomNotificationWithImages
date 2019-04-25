@@ -1,6 +1,7 @@
 package com.example.notificationpocs
 
 import android.annotation.TargetApi
+import android.app.Notification
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.RemoteViews
@@ -13,8 +14,10 @@ import android.app.NotificationChannel
 import android.graphics.Color
 
 import android.os.Build
+import android.support.annotation.IdRes
 import android.support.v4.app.NotificationCompat
 import com.squareup.picasso.Picasso
+import java.lang.Exception
 
 
 class MainActivity : AppCompatActivity() {
@@ -39,12 +42,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun generateNotification(isDefault: Boolean) {
-        inflateLayout()
+        setRemoteViews()
         notificationCompatBuilder = NotificationCompat.Builder(
             applicationContext, NOTIFICATION_CHANNEL_ID
         )
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
             createNotificationChannel()
+
         if (isDefault)
             notificationWithDefaultAction()
         else
@@ -52,19 +56,21 @@ class MainActivity : AppCompatActivity() {
 
         val notification = notificationCompatBuilder!!.build()
 
-        Picasso.get().load("https://goo.gl/static/Firebase.png").into(largeLayout!!, R.id.img3, 1, notification)
-        Picasso.get().load("https://goo.gl/static/Firebase.png").into(largeLayout!!, R.id.img2, 1, notification)
-        Picasso.get().load("https://goo.gl/static/Firebase.png").into(largeLayout!!, R.id.img1, 1, notification)
+        //load image for default action notification
+        loadImages(largeLayout!!,R.id.img1,"https://goo.gl/static/Firebase.png",1,notification)
+        loadImages(largeLayout!!,R.id.img2,"https://goo.gl/static/Firebase.png",1,notification)
+        loadImages(largeLayout!!,R.id.img3,"https://goo.gl/static/Firebase.png",1,notification)
 
-        Picasso.get().load("https://goo.gl/static/Firebase.png").into(largeLayoutCustomAction!!, R.id.img3, 1, notification)
-        Picasso.get().load("https://goo.gl/static/Firebase.png").into(largeLayoutCustomAction!!, R.id.img2, 1, notification)
-        Picasso.get().load("https://goo.gl/static/Firebase.png").into(largeLayoutCustomAction!!, R.id.img1, 1, notification)
+        //load image for custom action notification
+        loadImages(largeLayoutCustomAction!!,R.id.img1,"https://goo.gl/static/Firebase.png",1,notification)
+        loadImages(largeLayoutCustomAction!!,R.id.img2,"https://goo.gl/static/Firebase.png",1,notification)
+        loadImages(largeLayoutCustomAction!!,R.id.img3,"https://goo.gl/static/Firebase.png",1,notification)
 
         largeLayoutCustomAction!!.setOnClickPendingIntent(R.id.action_btn,contentIntent)
         notificationManager!!.notify(1, notification)
     }
 
-    private fun inflateLayout() {
+    private fun setRemoteViews() {
         smallLayout = RemoteViews(packageName, R.layout.notification_layout)
         largeLayout = RemoteViews(packageName, R.layout.notification_layout_large)
         largeLayoutCustomAction = RemoteViews(packageName, R.layout.notification_layout_large_action)
@@ -76,7 +82,7 @@ class MainActivity : AppCompatActivity() {
 
     fun notificationWithCustomAction() {
        notificationCompatBuilder!!
-            .setSmallIcon(R.drawable.sample)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setCustomBigContentView(largeLayoutCustomAction)
             .setCustomContentView(smallLayout)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
@@ -88,24 +94,21 @@ class MainActivity : AppCompatActivity() {
 
     fun notificationWithDefaultAction() {
         notificationCompatBuilder!!
-            .setSmallIcon(R.drawable.sample)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setCustomBigContentView(largeLayout)
             .setCustomContentView(smallLayout)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(contentIntent)
+            .addAction(R.drawable.notification_icon_background, "View", contentIntent)
             .setAutoCancel(true)
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            .addAction(R.drawable.notification_icon_background, "View", contentIntent)
-            .setColor(Color.MAGENTA)
             .setWhen(System.currentTimeMillis())
 
     }
 
     @TargetApi(Build.VERSION_CODES.O)
     fun createNotificationChannel() {
-
-        val channelName = NOTIFICATION_CHANNEL_NAME
         val importance = NotificationManager.IMPORTANCE_HIGH
         val notificationChannel =
             NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, importance)
@@ -113,8 +116,16 @@ class MainActivity : AppCompatActivity() {
         notificationChannel.lightColor = Color.RED
         notificationChannel.enableVibration(true)
         notificationChannel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
-
         notificationManager!!.createNotificationChannel(notificationChannel)
+
+    }
+
+    private fun loadImages(view:RemoteViews,@IdRes id:Int,url:String,notificationId:Int,notification: Notification){
+        try {
+            Picasso.get().load(url).into(view, id, notificationId, notification)
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
 
     }
 }
